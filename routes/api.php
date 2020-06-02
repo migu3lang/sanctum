@@ -23,6 +23,5 @@ Route::post('/register', 'RegisterController@register');
 Route::post('/login', 'LoginController@login');
 Route::post('/logout', 'LoginController@logout')->middleware('auth:sanctum');
 
-Route::post('/createst','TestController@create')->middleware('auth:sanctum','cors');
-Route::get('/index','TestController@index');
-
+//institutions jorjuela 01/06/2020
+Route::post('/institutions/newInstitution','institutions\InstitutionsController@newInstitution')->middleware('auth:sanctum');
