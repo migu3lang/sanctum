@@ -25,3 +25,4 @@ Route::post('/logout', 'LoginController@logout')->middleware('auth:sanctum');
 
 //institutions jorjuela 01/06/2020
 Route::post('/institutions/newInstitution','institutions\InstitutionsController@newInstitution')->middleware('auth:sanctum');
+Route::post('/institutions/dataTableInstitution','institutions\InstitutionsController@dataTableInstitution')->middleware('auth:sanctum');
