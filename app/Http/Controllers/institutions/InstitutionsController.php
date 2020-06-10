@@ -5,6 +5,7 @@ namespace App\Http\Controllers\institutions;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\institutions\Institution;
+use Illuminate\Support\Facades\DB;
 
 class InstitutionsController extends Controller
 {
@@ -25,7 +26,7 @@ class InstitutionsController extends Controller
 
     public function getAllInstitutions(){
 
-        $institutions = Institution::all();
+        $institutions = DB::table('institutions')->orderBy('id', 'desc')->get();
 
         return response()->json(['institutions'=>$institutions],200);
     }
@@ -35,5 +36,21 @@ class InstitutionsController extends Controller
         $institution = Institution::find($request->idInstitution);
         
         return response()->json(['institution'=>$institution],200);
+    }
+
+    public function editInstitution(Request $request){
+
+        $request->validate([
+            'idInstitution' => ['required'],
+            'institutionName' => ['required'],
+            'institutionInfo' => ['required']
+        ]);
+        
+        $institution = Institution::find($request->idInstitution);
+        $institution->institutionName = $request->institutionName;
+        $institution->institutionInfo = $request->institutionInfo;
+        $institution->update();
+
+        return response()->json("successful",200);
     }
 }

@@ -27,3 +27,4 @@ Route::post('/logout', 'LoginController@logout')->middleware('auth:sanctum');
 Route::post('/institutions/newInstitution','institutions\InstitutionsController@newInstitution')->middleware('auth:sanctum');
 Route::get('/institutions/getAllInstitutions','institutions\InstitutionsController@getAllInstitutions')->middleware('auth:sanctum');
 Route::post('/institutions/getInstitution','institutions\InstitutionsController@getInstitution')->middleware('auth:sanctum');
+Route::post('/institutions/editInstitution','institutions\InstitutionsController@editInstitution')->middleware('auth:sanctum');
