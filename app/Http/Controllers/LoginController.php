@@ -26,6 +26,7 @@ class LoginController extends Controller
             ]);
         }
 
+         // roles=user->roles()->get();   
         return $user->createToken($request->device_name)->plainTextToken;
     }
 

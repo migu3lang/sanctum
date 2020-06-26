@@ -17,21 +17,29 @@ class CreatePermissionTables extends Migration
         $columnNames = config('permission.column_names');
 
         if (empty($tableNames)) {
-            throw new \Exception('Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
+            throw new \Exception('Error: config/permission.php not found and defaults could not be merged. Please publish the package configuration before proceeding.');
         }
 
         Schema::create($tableNames['permissions'], function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
+            $table->string('display_name');
             $table->string('guard_name');
+            $table->unsignedInteger('modulo_id');
             $table->timestamps();
+
+            $table->foreign('modulo_id')->references('id')->on('modulos');
         });
 
         Schema::create($tableNames['roles'], function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
+            $table->string('display_name');
             $table->string('guard_name');
+            $table->unsignedInteger('admincliente_id')->nullable();
             $table->timestamps();
+
+            $table->foreign('admincliente_id')->references('id')->on('adminclientes');
         });
 
         Schema::create($tableNames['model_has_permissions'], function (Blueprint $table) use ($tableNames, $columnNames) {
