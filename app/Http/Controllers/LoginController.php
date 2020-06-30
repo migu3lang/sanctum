@@ -33,9 +33,9 @@ class LoginController extends Controller
        
         $roles=$user->roles()->get();
         $admincliente=Admincliente::where('user_id',$user->id)->first();
-        $modulos=AdminclienteModulo::where('admincliente_id',$admincliente->id)
+      $modulos=AdminclienteModulo::where('admincliente_id',$admincliente->id)
         ->join('modulos','modulos.id','=','admincliente_modulos.modulo_id')->select('modulos.nombreModulo')->get();
-
+        //$modulos='hola';
 
         $token=$user->createToken($request->device_name)->plainTextToken;
         return response()->json(['token'=>$token , 'roles'=>$roles , 'modulos'=>$modulos]);
