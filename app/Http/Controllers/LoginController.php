@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Role;
+use App\Administracion\Modulo;
+use App\Administracion\AdminclienteModulo;
+use App\Administracion\Admincliente;
+use DB;
 
 class LoginController extends Controller
 {
@@ -25,9 +30,15 @@ class LoginController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
+       
+        $roles=$user->roles()->get();
+        $admincliente=Admincliente::where('user_id',$user->id)->first();
+        $modulos=AdminclienteModulo::where('admincliente_id',$admincliente->id)
+        ->join('modulos','modulos.id','=','admincliente_modulos.modulo_id')->select('modulos.nombreModulo')->get();
 
-         // roles=user->roles()->get();   
-        return $user->createToken($request->device_name)->plainTextToken;
+
+        $token=$user->createToken($request->device_name)->plainTextToken;
+        return response()->json(['token'=>$token , 'roles'=>$roles , 'modulos'=>$modulos]);
     }
 
     public function logout(Request $request)

@@ -21,10 +21,10 @@ class CreateHistorialpermisosTable extends Migration
             $table->unsignedInteger('modulo_id');
             $table->timestamps();
 
-            $table->foreign('admincliente_id')->references('id')->on('adminclientes');
-            $table->foreign('role_id')->references('id')->on('roles');
-            $table->foreign('permission_id')->references('id')->on('permissions');
-            $table->foreign('modulo_id')->references('id')->on('modulos');
+            // $table->foreign('admincliente_id')->references('id')->on('adminclientes');
+            // $table->foreign('role_id')->references('id')->on('roles');
+            // $table->foreign('permission_id')->references('id')->on('permissions');
+            // $table->foreign('modulo_id')->references('id')->on('modulos');
         });
     }
 
