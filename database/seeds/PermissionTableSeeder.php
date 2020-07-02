@@ -3,6 +3,7 @@
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use App\Administracion\Modulo;
+
 class PermissionTableSeeder extends Seeder
 {
     /**
