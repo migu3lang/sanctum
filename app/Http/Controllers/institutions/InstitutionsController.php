@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\institutions;
+namespace App\Http\Controllers\Institutions;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -50,6 +50,24 @@ class InstitutionsController extends Controller
         $institution->institutionName = $request->institutionName;
         $institution->institutionInfo = $request->institutionInfo;
         $institution->update();
+
+        return response()->json("successful",200);
+    }
+
+    public function deleteInstitution(Request $request){
+        
+        $institution = Institution::find($request->idInstitution);
+        $institution->delete();
+
+        return response()->json("successful",200);
+    }
+
+    public function deleteMultipleInstitutions(Request $request){
+
+        foreach($request->arrayIdInstitutions as $idInstitution){
+            $institution = Institution::find($idInstitution);
+            $institution->delete();
+        }
 
         return response()->json("successful",200);
     }

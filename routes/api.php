@@ -28,7 +28,12 @@ Route::post('/login', 'LoginController@login');
 Route::post('/logout', 'LoginController@logout')->middleware('auth:sanctum');
 
 //institutions jorjuela 01/06/2020
-Route::post('/institutions/newInstitution','institutions\InstitutionsController@newInstitution')->middleware('auth:sanctum');
-Route::get('/institutions/getAllInstitutions','institutions\InstitutionsController@getAllInstitutions')->middleware('auth:sanctum');
-Route::post('/institutions/getInstitution','institutions\InstitutionsController@getInstitution')->middleware('auth:sanctum');
-Route::post('/institutions/editInstitution','institutions\InstitutionsController@editInstitution')->middleware('auth:sanctum');
+Route::group(['prefix'=>'institutions','namespace'=>'Institutions','middleware'=>'auth:sanctum'],function(){
+    Route::post('/newInstitution','InstitutionsController@newInstitution');
+    Route::get('/getAllInstitutions','InstitutionsController@getAllInstitutions');
+    Route::post('/getInstitution','InstitutionsController@getInstitution');
+    Route::post('/editInstitution','InstitutionsController@editInstitution');
+    Route::post('/deleteInstitution','InstitutionsController@deleteInstitution');
+    Route::post('/deleteMultipleInstitutions','InstitutionsController@deleteMultipleInstitutions');
+});
+
