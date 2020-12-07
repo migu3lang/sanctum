@@ -22,5 +22,10 @@ class AdminClienteTableSeeder extends Seeder
             'admincliente_id' => 1,
             'modulo_id' => 1
         ]);
+
+        AdminclienteModulo::create([
+            'admincliente_id' => 1,
+            'modulo_id' => 2
+        ]);
     }
 }

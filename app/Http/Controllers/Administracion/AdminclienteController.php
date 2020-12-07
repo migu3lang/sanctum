@@ -22,13 +22,12 @@ class AdminclienteController extends Controller
     public function index()
     {
         $admincliente = new Admincliente;
-        $this->authorize('ver_cliente', $admincliente);
 
         $adminclientes=Admincliente::select('adminclientes.id','users.name','users.email','adminclientes.nombreAdmincliente')
                                     ->join('users','users.id','=','adminclientes.user_id')
                                     ->get();
 
-        return view('admincliente.index_clientes',compact('adminclientes'));
+        return response()->json(['clients'=>$adminclientes]);
     }
 
     /**
@@ -48,6 +47,7 @@ class AdminclienteController extends Controller
     // METODO PARA CREAR NUEVOS CLIENTES
     public function store(Request $request)
     {
+        
         $user=new user();
         $user->name=$request->name;
         $user->email=$request->email;
@@ -56,7 +56,7 @@ class AdminclienteController extends Controller
         $user->save();
 
         $admincliente=new Admincliente();
-        $admincliente->nombreAdmincliente=$request->nombreAdmincliente;
+        $admincliente->nombreAdmincliente=$user->name."Administrador";
         $admincliente->user_id=$user->id;
         $admincliente->save();  
 
