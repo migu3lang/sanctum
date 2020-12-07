@@ -17,6 +17,7 @@ class LoginController extends Controller
 {
     public function login(Request $request)
     {
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -50,6 +51,7 @@ class LoginController extends Controller
         $token=$user->createToken($request->device_name)->plainTextToken;
 
         return response()->json(['token'=>$token , 'roles'=>$roles , 'modulos'=>$modulos]);
+
     }
 
     public function logout(Request $request)
