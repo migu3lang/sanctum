@@ -25,6 +25,7 @@ class AdminclienteController extends Controller
 
         $adminclientes=Admincliente::select('adminclientes.id','users.name','users.email','adminclientes.nombreAdmincliente')
                                     ->join('users','users.id','=','adminclientes.user_id')
+                                    ->whereNotIn('adminclientes.id',[1])
                                     ->get();
 
         return response()->json(['clients'=>$adminclientes]);
@@ -47,6 +48,12 @@ class AdminclienteController extends Controller
     // METODO PARA CREAR NUEVOS CLIENTES
     public function store(Request $request)
     {
+
+        $request->validate([
+            'name' => ['required'],
+            'email' => ['required','email'],
+            'telefono'=>['required','numeric']
+        ]);
         
         $user=new user();
         $user->name=$request->name;
@@ -100,7 +107,8 @@ class AdminclienteController extends Controller
         $moduloActivos=$this->modulosActivos($admincliente);
 
         //dd($modulos,$moduloActivos);
-        return view('admincliente.asignar_modulo_clientes',compact('modulos','admincliente','moduloActivos'));
+        return response()->json(['modulos'=>$modulos,'modulosActivos'=>$moduloActivos, "cliente"=>$admincliente]);
+        //return view('admincliente.asignar_modulo_clientes',compact('modulos','admincliente','moduloActivos'));
     }
 
 
@@ -109,8 +117,10 @@ class AdminclienteController extends Controller
     {
 
         $modulosViejos=$this->modulosActivos($admincliente);
+        
+        return response()->json($request->modules[0]);
 
-            if(is_null($request->modulos)==false)
+            if($request->globalCheckBoxes)
             {
         
                 $arrayModulosViejos=[];
@@ -186,7 +196,7 @@ class AdminclienteController extends Controller
 
                             }
 
-                            return redirect()->route('admincliente.index')->with('success','Se han sincronizado los roles y permisos satisfactoriamente');
+                            return response()->json('ya');
                         }
                     } 
             
