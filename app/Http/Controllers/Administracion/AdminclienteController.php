@@ -23,8 +23,9 @@ class AdminclienteController extends Controller
     {
         $admincliente = new Admincliente;
 
-        $adminclientes=Admincliente::select('adminclientes.id','users.name','users.email','adminclientes.nombreAdmincliente')
+        $adminclientes=Admincliente::select('adminclientes.id','users.name','users.email','adminclientes.nombreAdmincliente','adminclientes.telefono')
                                     ->join('users','users.id','=','adminclientes.user_id')
+                                    ->whereNotIn('adminclientes.id',[1])
                                     ->get();
 
         return response()->json(['clients'=>$adminclientes]);
@@ -47,6 +48,12 @@ class AdminclienteController extends Controller
     // METODO PARA CREAR NUEVOS CLIENTES
     public function store(Request $request)
     {
+
+        $request->validate([
+            'name' => ['required'],
+            'email' => ['required','email'],
+            'telefono'=>['required','numeric']
+        ]);
         
         $user=new user();
         $user->name=$request->name;
@@ -58,6 +65,7 @@ class AdminclienteController extends Controller
         $admincliente=new Admincliente();
         $admincliente->nombreAdmincliente=$user->name."Administrador";
         $admincliente->user_id=$user->id;
+        $admincliente->telefono=$request->telefono;
         $admincliente->save();  
 
         
@@ -100,7 +108,8 @@ class AdminclienteController extends Controller
         $moduloActivos=$this->modulosActivos($admincliente);
 
         //dd($modulos,$moduloActivos);
-        return view('admincliente.asignar_modulo_clientes',compact('modulos','admincliente','moduloActivos'));
+        return response()->json(['modulos'=>$modulos,'modulosActivos'=>$moduloActivos, "cliente"=>$admincliente]);
+        //return view('admincliente.asignar_modulo_clientes',compact('modulos','admincliente','moduloActivos'));
     }
 
 
@@ -109,21 +118,23 @@ class AdminclienteController extends Controller
     {
 
         $modulosViejos=$this->modulosActivos($admincliente);
+        
+        //return response()->json($request->modules);
 
-            if(is_null($request->modulos)==false)
+            if($request->modules)
             {
         
                 $arrayModulosViejos=[];
-                if(count($modulosViejos) == count($request->modulos))
+                if(count($modulosViejos) == count($request->modules))
                 {
                 foreach($modulosViejos as $modulo){array_push($arrayModulosViejos,$modulo->modulo_id); }  
 
-                $result=array_diff($request->modulos,$arrayModulosViejos);
+                $result=array_diff($request->modules,$arrayModulosViejos);
 
                 if(empty($result))
                 {
                     // error de react
-                    return back()->with('errores','No se realizo ningún cambio en los módulos asignados');
+                    return response()->json(['mensaje'=>'error']);
                 }
                 }
                     
@@ -136,7 +147,7 @@ class AdminclienteController extends Controller
                         ->where('admincliente_id',$admincliente->id)
                         ->delete();  
                         
-                        foreach($request->modulos as $modulo){
+                        foreach($request->modules as $modulo){
                             $adminclientemodulo=new AdminclienteModulo();
                             $adminclientemodulo->admincliente_id=$admincliente->id;
                             $adminclientemodulo->modulo_id=$modulo;
@@ -152,7 +163,7 @@ class AdminclienteController extends Controller
                             $comparador=$this->comparadorModulos($modulosViejos,$modulosNuevos);
                             $roles=$this->softDeleterole($comparador,$admincliente->id);
                         
-                            return redirect()->route('admincliente.index')->with('success','Se han asignado módulos y permisos correctamente');
+                            return response()->json(['mensaje'=>'cambios']);
                             
                         }elseif(count($modulosViejos) < count($modulosNuevos)){
 
@@ -160,7 +171,7 @@ class AdminclienteController extends Controller
                             $restore=$this->restoreRolepermisos($comparador,$admincliente->id);
                         
                         // dd($restore);
-                            return redirect()->route('admincliente.index')->with('success','Se han asignado módulos y permisos correctamente');
+                        return response()->json(['mensaje'=>'cambios']);
                         } 
                         elseif(count($modulosViejos) == count($modulosNuevos))
                         {
@@ -186,12 +197,12 @@ class AdminclienteController extends Controller
 
                             }
 
-                            return redirect()->route('admincliente.index')->with('success','Se han sincronizado los roles y permisos satisfactoriamente');
+                            return response()->json('ya');
                         }
                     } 
             
 
-            return back()->with('errores'," El cliente ".$admincliente->nombreAdmincliente." no puede quedar sin ningún módulo activo");
+            return response()->json(['mensaje'=>'hola']);
     }
 
 
@@ -317,6 +328,19 @@ class AdminclienteController extends Controller
 
 
               return $salida; 
+    }
+
+
+    public function editClient(Admincliente $admincliente, Request $request){
+
+        $user=User::where('id',$admincliente->user_id)->first();
+
+        $user->name=$request->name;
+        $user->email=$request->email;
+        $admincliente->telefono=$request->telefono;
+        $user->update();
+        $admincliente->update();
+
     }
 
      

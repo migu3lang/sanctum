@@ -48,5 +48,8 @@ Route::group(['prefix'=>'institutions','namespace'=>'Institutions','middleware'=
 Route::group(['prefix'=>'clients','namespace'=>'Administracion','middleware'=>'auth:sanctum'],function(){
 Route::get('/list','AdminclienteController@index');
 Route::post('/store','AdminclienteController@store');
+Route::get('/getmodules/{admincliente}','AdminclienteController@adminCliente_modulos');
+Route::post('/mas/{admincliente}','AdminclienteController@admincliente_storemodulos');
+Route::post('/edit/{admincliente}','AdminclienteController@editClient');
 });
 
