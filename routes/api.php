@@ -53,3 +53,10 @@ Route::post('/mas/{admincliente}','AdminclienteController@admincliente_storemodu
 Route::post('/edit/{admincliente}','AdminclienteController@editClient');
 });
 
+
+Route::group(['prefix'=>'roles','namespace'=>'GestionUsuarios','middleware'=>'auth:sanctum'],function(){
+
+    route::get('/list','RolesAdminClienteController@index');
+   
+    });
+

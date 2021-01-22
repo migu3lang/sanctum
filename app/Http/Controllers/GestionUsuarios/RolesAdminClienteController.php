@@ -19,11 +19,13 @@ class RolesAdminClienteController extends Controller
         //$admincliente = new Admincliente;
         //$this->authorize('ver_roles', $admincliente);
         
-        $user=User::UserAuth();
+        $user = User::UserAuth();
 
         $roles=Role::where('admincliente_id',$user->admincliente_id)->get();
         
-        return view('rolesCliente.ver_role',compact('roles'));
+        //return view('rolesCliente.ver_role',compact('roles'));
+
+        return response()->json(['roles'=>$roles]);
     }
 
     /**
@@ -243,4 +245,6 @@ class RolesAdminClienteController extends Controller
 
         return empty($result);
     }
+
+     
 }
