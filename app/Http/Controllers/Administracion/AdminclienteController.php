@@ -103,9 +103,9 @@ class AdminclienteController extends Controller
         // se excluye el modulo de super administrador y el de Administrador ya que se manera previa se carga
         $modulos=Modulo::where('id','!=',1)
                             ->get();
-
-
         $moduloActivos=$this->modulosActivos($admincliente);
+
+
 
         //dd($modulos,$moduloActivos);
         return response()->json(['modulos'=>$modulos,'modulosActivos'=>$moduloActivos, "cliente"=>$admincliente]);
@@ -116,93 +116,44 @@ class AdminclienteController extends Controller
     // METODO QUE HACE TODO EL PROCESO DE ELIMINACION PERMISOS DEPENDIENDO DE LOS MODULOS ACTIVOS    
     public function admincliente_storemodulos(Admincliente $admincliente,Request $request)
     {
-
-        $modulosViejos=$this->modulosActivos($admincliente);
         
-        //return response()->json($request->modules);
+        $modulosActivos=$this->modulosActivos($admincliente);
 
-            if($request->modules)
-            {
-        
-                $arrayModulosViejos=[];
-                if(count($modulosViejos) == count($request->modules))
-                {
-                foreach($modulosViejos as $modulo){array_push($arrayModulosViejos,$modulo->modulo_id); }  
+      
 
-                $result=array_diff($request->modules,$arrayModulosViejos);
+        if(!empty($request->modules))
+        {
+                // modulos activos son los estan en este momento en base de datos
+                // request->modules que son los entrantes mas lo que si ya esta el cliente deben venir con click
+            $arrayModulosActivos=[];
 
-                if(empty($result))
-                {
-                    // error de react
-                    return response()->json(['mensaje'=>'error']);
+                foreach($modulosActivos as $modulo){
+                    array_push($arrayModulosActivos,$modulo->modulo_id);
+                
                 }
-                }
-                    
-                        $role=Role::where('admincliente_id',$admincliente->id)->first();
-                        //dd($role);
-                        $anteriores=$this->moduloActivoPermisos($admincliente);
-                        $role->revokePermissionTo($anteriores);
-
-                        $sync=DB::table('admincliente_modulos')
-                        ->where('admincliente_id',$admincliente->id)
-                        ->delete();  
-                        
-                        foreach($request->modules as $modulo){
-                            $adminclientemodulo=new AdminclienteModulo();
-                            $adminclientemodulo->admincliente_id=$admincliente->id;
-                            $adminclientemodulo->modulo_id=$modulo;
-                            $adminclientemodulo->save();
-                        }
-                        $modulosNuevos=$this->modulosActivos($admincliente);
-
-                        $activos=$this->moduloActivoPermisos($admincliente);
-                        $role->givePermissionTo($activos);
-
-                        if(count($modulosViejos) > count($modulosNuevos))
-                        {  
-                            $comparador=$this->comparadorModulos($modulosViejos,$modulosNuevos);
-                            $roles=$this->softDeleterole($comparador,$admincliente->id);
-                        
-                            return response()->json(['mensaje'=>'cambios']);
-                            
-                        }elseif(count($modulosViejos) < count($modulosNuevos)){
-
-                            $comparador=$this->comparadorModulos($modulosNuevos,$modulosViejos);
-                            $restore=$this->restoreRolepermisos($comparador,$admincliente->id);
-                        
-                        // dd($restore);
-                        return response()->json(['mensaje'=>'cambios']);
-                        } 
-                        elseif(count($modulosViejos) == count($modulosNuevos))
-                        {
-                            //dd($modulosViejos->toArray(),$modulosNuevos->toArray());
-                            //$comparador=$this->comparadorModulos($modulosNuevos,$modulosViejos);
-                            $arrayA=[];
-                            $arrayB=[];
-                            for($i=0 ;$i<count($modulosNuevos); $i++ )
-                            {
-                                array_push($arrayA,$modulosViejos[$i]->modulo_id);
-                                array_push($arrayB,$modulosNuevos[$i]->modulo_id);
-                            }
-                            $result=array_diff($arrayA,$arrayB);
-                            $this->softDeleterole($result,$admincliente->id);
-
-                                
-                            $permisos=Historialpermiso::whereIn('modulo_id',$arrayB)     
-                            ->where('admincliente_id',$adminclientemodulo->admincliente_id)->get();
-
-                            if(count($permisos)>0)
-                            {
-                                $this->restoreRolepermisos($arrayB,$admincliente->id);
-
-                            }
-
-                            return response()->json('ya');
-                        }
-                    } 
             
+                $diferencia = array_diff($request->modules,$arrayModulosActivos);
 
-            return response()->json(['mensaje'=>'hola']);
+                return $diferencia;
+
+                if(empty($diferencia)){
+
+                    return response()->json(["mensaje"=>"vacio"]);
+                }else{
+
+
+                    return response()->json(["mensaje"=>"diferencia"]);
+                }
+
+        }else{
+
+                return "vacio";
+
+        }
+        
+        
+        return response()->json(['modulos'=>"aqui no"]);
+      
     }
 
 
@@ -212,8 +163,10 @@ class AdminclienteController extends Controller
         // METODO CONSULTA EXISTENCIA DE MODULOS 
     public function modulosActivos(Admincliente $admincliente)
     {
-        $activos=AdminclienteModulo::where('admincliente_id',$admincliente->id)->get();
-
+        $activos=AdminclienteModulo::where('admincliente_id',$admincliente->id)
+        ->select('modulo_id')
+        ->get();
+        
         return $activos;
     }
 

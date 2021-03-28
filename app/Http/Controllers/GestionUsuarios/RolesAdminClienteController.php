@@ -11,6 +11,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\DB;
 use App\User;
+use App\Administracion\Modulo;
 
 class RolesAdminClienteController extends Controller
 {
@@ -246,5 +247,20 @@ class RolesAdminClienteController extends Controller
         return empty($result);
     }
 
-     
+    // asignador de modulos por permiso
+    public function permissionByModule(){
+
+        //$user = User::UserAuth();
+        
+
+        $modulos=DB::table('admincliente_modulos')
+        ->join('modulos','modulos.id','=','admincliente_modulos.modulo_id')    
+        ->where('admincliente_modulos.admincliente_id',2)
+        ->select('modulos.nombreModulo')
+        ->get();
+
+        return $modulos;
+
+    }
+ 
 }

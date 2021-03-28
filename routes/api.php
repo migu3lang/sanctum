@@ -60,3 +60,5 @@ Route::group(['prefix'=>'roles','namespace'=>'GestionUsuarios','middleware'=>'au
    
     });
 
+    route::get('/general/','GestionUsuarios\RolesAdminClienteController@permissionByModule');
+
