@@ -127,23 +127,55 @@ class AdminclienteController extends Controller
                 // request->modules que son los entrantes mas lo que si ya esta el cliente deben venir con click
             $arrayModulosActivos=[];
 
-                foreach($modulosActivos as $modulo){
+                foreach($modulosActivos as $modulo)
+                {
                     array_push($arrayModulosActivos,$modulo->modulo_id);
-                
                 }
             
-                $diferencia = array_diff($request->modules,$arrayModulosActivos);
+                $diferencia = array_intersect($arrayModulosActivos,$request->modules);
+                
+                AdminclienteModulo::where('admincliente_id',$admincliente->id)->delete();
 
-                return $diferencia;
+                    foreach($diferencia as $diff){
+                        $modulo = new AdminclienteModulo();
+                        $modulo->admincliente_id=$admincliente->id;
+                        $modulo->modulo_id=$diff;
+                        $modulo->save();
+                    }
 
-                if(empty($diferencia)){
+                    return response()->json(["mensaje"=>"guardo"]);
+                
 
-                    return response()->json(["mensaje"=>"vacio"]);
+             /*  if(empty(array_diff($request->modules,$arrayModulosActivos))){
+
+
+                   
+                    return response()->json(["mensaje"=>"No hay cambios para asignar"],412);
                 }else{
 
+                    
+                     
+                    AdminclienteModulo::where('admincliente_id',$admincliente->id)->delete();
 
-                    return response()->json(["mensaje"=>"diferencia"]);
-                }
+                    foreach($diferencia as $diff){
+                        $modulo = new AdminclienteModulo();
+                        $modulo->admincliente_id=$admincliente->id;
+                        $modulo->modulo_id=$diff;
+                        $modulo->save();
+                    }
+
+                    foreach(array_diff($request->modules,$arrayModulosActivos) as $diff1)
+                    {
+                        
+                            $modulo = new AdminclienteModulo();
+                            $modulo->admincliente_id=$admincliente->id;
+                            $modulo->modulo_id=$diff1;
+                            $modulo->save();
+
+                    }
+
+                    return response()->json(["mensaje"=>"guardo"]);
+                }  */ 
 
         }else{
 
