@@ -13,10 +13,7 @@ class PermissionTableSeeder extends Seeder
      */
     public function run()
     {
-        Modulo::create(['nombreModulo'=>'clients']);
-        Modulo::create(['nombreModulo'=>'institutions']);
-        Modulo::create(['nombreModulo'=>'roles']);
-        Modulo::create(['nombreModulo'=>'generations']);
+        
 
         Permission::create(['name' => 'View Institutions','display_name' =>'View','modulo_id'=>1 , 'guard_name'=>'sanctum']);
         Permission::create(['name' => 'Create Institutions','display_name' =>'Create','modulo_id'=>1, 'guard_name'=>'sanctum']);
