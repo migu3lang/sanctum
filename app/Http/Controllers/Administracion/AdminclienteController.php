@@ -116,75 +116,46 @@ class AdminclienteController extends Controller
     // METODO QUE HACE TODO EL PROCESO DE ELIMINACION PERMISOS DEPENDIENDO DE LOS MODULOS ACTIVOS    
     public function admincliente_storemodulos(Admincliente $admincliente,Request $request)
     {
-        
-        $modulosActivos=$this->modulosActivos($admincliente);
+        $newModulesId = $request->modules;// modulos que vienen seleccionados del front
+        $oldModules = $this->modulosActivos($admincliente);// modulos que estan activos en la base de datos
 
       
 
-        if(!empty($request->modules))
+        if(!empty($newModulesId))
         {
-                // modulos activos son los estan en este momento en base de datos
-                // request->modules que son los entrantes mas lo que si ya esta el cliente deben venir con click
-            $arrayModulosActivos=[];
+            $arrayOldModulesId=[];// array que guarda los id de los modulos que se obtuvieron en la consulta a la BD => $oldModules
 
-                foreach($modulosActivos as $modulo)
-                {
-                    array_push($arrayModulosActivos,$modulo->modulo_id);
-                }
+            foreach($oldModules as $oldModule)
+            {
+                array_push($arrayOldModulesId,$oldModule->modulo_id);
+            }
             
-                $diferencia = array_intersect($arrayModulosActivos,$request->modules);
-                
+            // se valida si hay alguna diferenciae entre los modulos seleccionados en el front y los que tiene activos en la base de datos
+            if(empty(array_merge(array_diff($newModulesId,$arrayOldModulesId),array_diff($arrayOldModulesId,$newModulesId)))){
+
+                return response()->json(["noChanges"=>"sin cambios en los modulos"],412);
+
+            }else{
+
                 AdminclienteModulo::where('admincliente_id',$admincliente->id)->delete();
 
-                    foreach($diferencia as $diff){
-                        $modulo = new AdminclienteModulo();
-                        $modulo->admincliente_id=$admincliente->id;
-                        $modulo->modulo_id=$diff;
-                        $modulo->save();
-                    }
+                foreach($newModulesId as $newModuleId){
+                    $modulo = new AdminclienteModulo();
+                    $modulo->admincliente_id = $admincliente->id;
+                    $modulo->modulo_id = $newModuleId;
+                    $modulo->save();
+                }
 
-                    return response()->json(["mensaje"=>"guardo"]);
-                
-
-             /*  if(empty(array_diff($request->modules,$arrayModulosActivos))){
-
-
-                   
-                    return response()->json(["mensaje"=>"No hay cambios para asignar"],412);
-                }else{
-
-                    
-                     
-                    AdminclienteModulo::where('admincliente_id',$admincliente->id)->delete();
-
-                    foreach($diferencia as $diff){
-                        $modulo = new AdminclienteModulo();
-                        $modulo->admincliente_id=$admincliente->id;
-                        $modulo->modulo_id=$diff;
-                        $modulo->save();
-                    }
-
-                    foreach(array_diff($request->modules,$arrayModulosActivos) as $diff1)
-                    {
-                        
-                            $modulo = new AdminclienteModulo();
-                            $modulo->admincliente_id=$admincliente->id;
-                            $modulo->modulo_id=$diff1;
-                            $modulo->save();
-
-                    }
-
-                    return response()->json(["mensaje"=>"guardo"]);
-                }  */ 
+                return response()->json(["successfull"],200);
+            }
+            
 
         }else{
 
-                return "vacio";
+                return response()->json(["emptyModules"=>"el cliente no puede quedar sin modulos"],412);
 
         }
         
-        
-        return response()->json(['modulos'=>"aqui no"]);
       
     }
 
